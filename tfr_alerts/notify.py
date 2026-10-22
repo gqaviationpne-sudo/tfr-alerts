@@ -117,12 +117,36 @@ def sms_body(place, radius, matches, links):
 class EmailSender:
     def __init__(self, host, port, user, password, from_addr):
         self.host, self.port = host, int(port)
-        self.user, self.password, self.from_addr = user, password, from_addr
+        # Gmail shows app passwords as "abcd efgh ijkl mnop"; stray spaces or newlines from pasting break login.
+        self.user = "".join((user or "").split())
+        self.password = "".join((password or "").split())
+        self.from_addr = from_addr or self.user
         self._smtp = None
 
+    def _diagnose(self):
+        print(f"SMTP check: user {'looks like an email' if '@' in self.user else 'is EMPTY or not an email'}, "
+              f"password is {len(self.password)} characters (a Gmail app password is 16)")
+
     def __enter__(self):
-        self._smtp = smtplib.SMTP_SSL(self.host, self.port, timeout=30)
-        self._smtp.login(self.user, self.password)
+        if not self.user or not self.password:
+            self._diagnose()
+            raise RuntimeError("SMTP_USER and SMTP_PASSWORD secrets must both be set")
+        try:
+            self._smtp = smtplib.SMTP_SSL(self.host, self.port, timeout=30)
+            self._smtp.login(self.user, self.password)
+        except smtplib.SMTPServerDisconnected:
+            # Some networks drop port 465; retry on 587 with STARTTLS before giving up.
+            print("SMTP: port 465 closed the connection, retrying on 587")
+            try:
+                self._smtp = smtplib.SMTP(self.host, 587, timeout=30)
+                self._smtp.starttls()
+                self._smtp.login(self.user, self.password)
+            except smtplib.SMTPException:
+                self._diagnose()
+                raise
+        except smtplib.SMTPException:
+            self._diagnose()
+            raise
         return self
 
     def __exit__(self, *exc):
