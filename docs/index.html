@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>GQ Aviation TFR Alerts</title>
+<meta name="description" content="Free live TFR map and daily alerts for pilots from GQ Aviation, around you or your home airport.">
+<meta name="theme-color" content="#1d4ed8">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="GQ TFR">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<link rel="stylesheet" href="app.css">
+</head>
+<body>
+<header class="topbar">
+  <div class="brand"><img src="icons/icon-192.png" alt="" width="28" height="28">
+    <span>TFR Alerts <span class="by">by GQ Aviation</span></span></div>
+  <button class="icon-btn" id="account-btn" aria-label="Account">
+    <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"
+         stroke-linecap="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/></svg>
+  </button>
+</header>
+
+<!-- Feed -->
+<main id="feed-view">
+  <div id="map" aria-label="Map of nearby TFRs"></div>
+  <div class="controls">
+    <div class="seg" role="tablist" aria-label="Center on">
+      <button role="tab" id="src-here" aria-selected="true">My location</button>
+      <button role="tab" id="src-home" aria-selected="false">Home airport</button>
+    </div>
+    <select id="radius" aria-label="Radius">
+      <option value="25">25 NM</option>
+      <option value="50" selected>50 NM</option>
+      <option value="75">75 NM</option>
+      <option value="100">100 NM</option>
+    </select>
+  </div>
+  <div class="status" id="status" role="status">Loading TFRs...</div>
+  <div id="install" class="install" hidden></div>
+  <ul class="list" id="list"></ul>
+  <p class="disclaimer">For situational awareness only, not an official briefing. TFRs can be issued at any
+    time. Always get an official briefing (1800wxbrief.com, 1-800-WX-BRIEF) before flight. Data: FAA tfr.faa.gov.
+    <br>A free service from GQ Aviation.</p>
+</main>
+
+<!-- Account -->
+<section id="account-view" class="panel" hidden>
+  <div class="panel-head">
+    <h2>Account</h2>
+    <button class="text-btn" id="account-close">Done</button>
+  </div>
+
+  <form id="signin-form" class="card" novalidate hidden>
+    <p class="muted">Sign in or create a free account with your email. We'll send a one-tap link, no password.
+      With an account you get a TFR brief by email every morning around your home airport or wherever you last opened the app.</p>
+    <label for="si-email">Email</label>
+    <input id="si-email" type="email" autocomplete="email" required>
+    <input class="hp" type="text" name="website" tabindex="-1" autocomplete="off" aria-hidden="true">
+    <button type="submit" class="primary">Email me a sign-in link</button>
+    <div class="msg" id="signin-msg" role="status"></div>
+  </form>
+
+  <form id="settings-form" class="card" novalidate hidden>
+    <p class="muted" id="signed-in-as"></p>
+
+    <label class="switch"><input type="checkbox" name="alerts"><span>Morning TFR brief by email</span></label>
+
+    <label for="st-airport">Home airport</label>
+    <input id="st-airport" name="airport" type="text" placeholder="KPNE" maxlength="4" autocapitalize="characters">
+    <div class="hint" id="airport-name"></div>
+
+    <label for="st-radius">Radius</label>
+    <select id="st-radius" name="radius">
+      <option value="25">25 NM</option><option value="50">50 NM</option>
+      <option value="75">75 NM</option><option value="100">100 NM</option>
+    </select>
+
+    <label class="switch"><input type="checkbox" name="follow_location">
+      <span>Follow me: use where I last opened the app (falls back to home after 3 days)</span></label>
+    <label class="switch"><input type="checkbox" name="only_when_tfrs">
+      <span>Only send the brief when a TFR is nearby</span></label>
+
+    <label for="st-name">First name <span class="hint">(optional)</span></label>
+    <input id="st-name" name="name" type="text" autocomplete="given-name" maxlength="60">
+
+    <label for="st-phone">Mobile for texts <span class="hint">(optional, US)</span></label>
+    <input id="st-phone" name="phone" type="tel" autocomplete="tel" placeholder="215-555-0123">
+    <label class="switch"><input type="checkbox" name="sms"><span>Also text me the brief</span></label>
+    <label class="check"><input type="checkbox" name="sms_consent">
+      <span>I agree to receive one automated TFR text per day. Msg &amp; data rates may apply. Reply STOP to cancel.</span></label>
+
+    <button type="submit" class="primary">Save</button>
+    <div class="msg" id="settings-msg" role="status"></div>
+    <button type="button" class="text-btn danger" id="signout">Sign out</button>
+  </form>
+</section>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script src="config.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

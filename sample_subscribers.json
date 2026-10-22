@@ -1,0 +1,6 @@
+[
+  {"email": "pilot1@example.com", "name": "Sam", "airport": "KPNE", "radius": 50, "token": "demo-token-1"},
+  {"email": "pilot2@example.com", "name": "Alex", "airport": "PBI", "radius": 50, "phone": "+12155550123", "sms": true, "token": "demo-token-2"},
+  {"email": "pilot3@example.com", "name": "", "airport": "KPNE", "lat": 26.68, "lon": -80.09, "radius": 50, "token": "demo-token-3"},
+  {"email": "pilot4@example.com", "name": "Jo", "airport": "ZZZZ", "radius": 50, "token": "demo-token-4"}
+]
