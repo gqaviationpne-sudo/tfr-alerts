@@ -1,0 +1,39 @@
+name: Daily TFR alerts
+
+on:
+  schedule:
+    # 10:00 UTC = 6:00 AM EDT / 5:00 AM EST. GitHub can start scheduled runs a few minutes late.
+    - cron: "0 10 * * *"
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Dry run (build alerts, send nothing)"
+        type: boolean
+        default: true
+
+jobs:
+  send:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Send alerts
+        env:
+          SCRIPT_URL: ${{ secrets.SCRIPT_URL }}
+          SCRIPT_API_KEY: ${{ secrets.SCRIPT_API_KEY }}
+          APP_URL: ${{ vars.APP_URL }}
+          SMTP_USER: ${{ secrets.SMTP_USER }}
+          SMTP_PASSWORD: ${{ secrets.SMTP_PASSWORD }}
+          EMAIL_FROM: ${{ vars.EMAIL_FROM }}
+          TWILIO_ACCOUNT_SID: ${{ secrets.TWILIO_ACCOUNT_SID }}
+          TWILIO_AUTH_TOKEN: ${{ secrets.TWILIO_AUTH_TOKEN }}
+          TWILIO_FROM: ${{ secrets.TWILIO_FROM }}
+        run: |
+          if [ "${{ inputs.dry_run }}" = "true" ]; then
+            python -m tfr_alerts --dry-run
+          else
+            python -m tfr_alerts
+          fi
